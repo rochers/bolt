@@ -1,0 +1,30 @@
+$src = "../src";
+$pear = "/home/bolt/share/pear/bolt/";
+$conf = "/home/bolt/conf/bsecure/";
+
+$Meta = {
+    'project' => 'bolt',
+    'name' => 'secure',
+    'version' => '1.5',
+    'changelog' => 'changelog'
+};
+
+$Dirs = [
+	$pear,
+	$conf,
+	$etc
+];
+
+$Files = [
+
+	# conf to include bsecure
+	["/home/bolt/conf/httpd/",			"../conf/bsecure.conf"],
+	
+	# lib
+	["/home/bolt/lib",					{'src' => $src."/lib/clear_apc", 'mode' => '0775'}],
+    
+    # pear
+    [$pear,         {"find"=>$src.'/pear -name "*.php"'}],
+
+];
+

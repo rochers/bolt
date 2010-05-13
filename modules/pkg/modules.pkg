@@ -1,0 +1,27 @@
+$src = "../src";
+$pear = "/home/bolt/share/pear/bolt/modules/";
+$assets = "/home/bolt/share/htdocs/assets/bolt/";
+
+$Meta = {
+	'project'	=> 'bolt',
+	'name'		=> 'modules',
+	'version'	=> 'file:changelog',
+	'changelog' => 'changelog'
+};
+
+$Dirs = [
+	"$pear",
+];
+
+$Files = [
+
+	# pear
+	["$pear",         {"find"=>$src.' -name "*.php" -not -name "*svn*"','root' => $src }],
+	
+	# find css and js in modules and 
+    # move it to the assets folder   
+    ["$assets/css",          {"find"=>$src.' -depth -name "*.css" -not -name "*svn*"'}],
+    ["$assets/js",           {"find"=>$src.' -depth -name "*.js" -not -name "*svn*"'}],
+    ["$assets/images",       {"find"=>$src.' -depth -name "*.jpg" -or -name "*.png" -or -name "*.gif" -not -name "*svn*"'}]
+    
+];

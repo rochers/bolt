@@ -1,0 +1,150 @@
+div.comments { 
+	
+	margin: 10px 0;
+	padding: 15px 15px 0px 15px;
+	width: 400px;
+	position: relative;
+
+}
+
+div.comments .nub { 
+
+	position: absolute;
+	top: -8px;
+	width: 30px;
+	height: 8px;
+	background: url(../images/reply-nub.png) no-repeat;
+}
+
+
+div.comments ul li span {
+	font-weight: bold;
+}
+
+div.comments textarea.writebox { 
+	
+	width: 385px;
+	height: 13px;
+	padding: 7px;
+	background: #fff url(../images/write-comment.jpg) 5px 5px no-repeat;
+	border:1px solid #ccc;
+	
+}
+
+div.comments textarea.selected { 
+
+	background: #fff;
+	height: 75px;
+
+}
+
+
+div.comments .ft { 
+
+	margin: 5px 0 0 0;
+	text-align: right;
+
+}
+
+div.comments input.submit-comment {
+	
+	padding:2px 4px 3px;
+	color: #fff;
+	background: #5071a4;
+	border: 1px solid #555;
+	font-size: 85%;
+	font-weight: bold;
+
+}
+
+.comments-wrap { 
+	background: #fff; 
+	margin: 15px 0 15px 0px;
+	color: #93949a;
+	position: relative;
+}
+
+.comments-wrap h2 {
+	font-size: 24px;
+	color: #7b7c84;
+	margin: 0 0 5px 0;
+} 
+
+	.comments-wrap .comments ul li { 
+		min-height: 82px;
+		width: 645px;
+		margin: 0 0 25px;
+		position: relative;
+		display: block;
+		border-top: 1px solid #dedede;
+	}
+	
+		.comments-wrap .comments ul li.reply {
+			width: 588px;
+			margin-left: 100px;
+		}
+		
+		.comments-wrap .comments ul li.reply span.text { 
+			width: 556px;
+			background-color: #ffebc4;
+		}
+	
+	.comments-wrap .comments ul li span.credit { 
+		font-size: 12px;
+		font-weight: bold;
+		display: block;
+		background: url(../images/comment-bubble-btm.png) no-repeat;
+		width: 640px;
+		height: 40px;
+	}
+	
+	.comments-wrap .comments ul li span.credit span.txt {
+		margin-bottom: 50px;
+		padding-top: 10px;
+		display: inline-block;
+	}
+	
+	.comments-wrap .comments ul li span.credit span.date {
+		margin-right: 70px;
+		font-weight: normal;
+	}
+	
+	.comments-wrap .comments ul li span.text { 
+		padding: 15px;
+		width: 608px;
+		display: block;
+		color: #555;
+		background: #f3f7e1;
+		border:1px solid #dedede;
+		border-bottom: 0;
+		border-top: 0;
+	}
+	
+.comments-wrap .comments form { 
+	
+	border-top:1px solid #e6e6e6;
+	margin: 0 -15px 0;
+	background: #fff;
+	padding: 10px 20px;
+	
+}
+
+	.comments-wrap .comments form h2 {
+		font-size: 18px;
+		color: #7b7c84;
+		margin: 10px 0;
+	}
+
+	.comments-wrap .comments form textarea.writebox {
+		width: 100%;
+	}
+	
+	.comments-wrap .comments form input.submit-comment {
+		cursor:pointer;
+		height: 33px;
+		border:none;
+		overflow:hidden;
+		margin: 5px 0 0;
+		background: #000;
+	}
+	

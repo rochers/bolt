@@ -1,0 +1,9 @@
+$Meta = {
+    'project'   => 'bolt',
+    'name'      => 'tigger',
+    'version'   => '0.2'
+};
+
+$Files = [
+    ["/usr/bin/","tigger"]	
+];

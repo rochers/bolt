@@ -1,0 +1,20 @@
+$src = "../src";
+$pear = "/home/bolt/share/pear/bolt/dao/";
+
+$Meta = {
+	'project'	=> 'bolt',
+	'name'		=> 'dao',
+	'version'	=> 'file:changelog',
+	'changelog' => 'changelog'
+};
+
+$Dirs = [
+	"$pear",
+];
+
+$Files = [
+		
+	# pear
+	["$pear",         {"find"=>$src.' -name "*.php" -not -name "*svn*"'}],
+
+];

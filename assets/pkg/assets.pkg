@@ -1,0 +1,32 @@
+# source
+$src = "../src";
+$dest = "/home/bolt/share/htdocs/assets";
+$conf = "/home/bolt/conf/httpd/";
+
+$Meta = {
+    'project'       => 'bolt',
+    'name'          => 'assets',
+    'version'       => 'file:changelog',
+    'summary'       => "Assets for a Simple PHP Framework",
+    'description'   => "Assets for a very simple php framework",
+    'changelog'     => 'changelog',    
+};
+
+$Dirs = [
+    "$dest"
+];
+
+$Files = [
+	[$conf, "../conf/bolt-assets.conf"],
+    ["$dest/bolt", {'find' => '../src -depth -name "*.css"', 'root' => '../src'}],
+    ["$dest/bolt", {'find' => '../src -depth -name "*.js"', 'root' => '../src'}]
+];
+
+$Commands = {
+	'post-install' => [
+		'/etc/init.d/httpd restart'
+	],
+	'post-set' => [
+		'/etc/init.d/httpd restart'	
+	]
+};

@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+#
+# tigger
+#
+# usage: tigger file [type]
+#
+
+use Data::Dumper;
+
+# file formats
+my %formats = (
+    'error' => "/home/bolt/logs/httpd/{file}.error",
+    'access' => "/home/bolt/logs/httpd/{file}.access"
+);
+
+# what we need
+if ( $#ARGV == -1 ) {
+    print "usage: tigger file [type]"; exit;
+}
+
+# set the file
+my $file = $ARGV[0];
+my $type = $ARGV[1] || "error";
+
+    # check if file is an abs path
+    if ( substr($file,0,1) ne "/"  ) {
+        if ( defined $formats{$type} ) {
+            my $s = $formats{$type};
+               $s =~ s/\{file\}/$file/g;
+            $file = $s;
+        }
+    }    
+
+# now tail
+system("tail -f $file");

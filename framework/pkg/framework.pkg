@@ -1,0 +1,22 @@
+# source
+$src = "../src";
+$dest = "/home/bolt/share/pear/bolt/framework";
+$conf = "/home/bolt/conf/httpd/";
+
+$Meta = {
+    'project'       => 'bolt',
+    'name'          => 'framework',
+    'version'       => 'file:changelog',
+    'summary'       => "Simple PHP Framework",
+    'description'   => "A very simple php framework",
+    'changelog'     => 'changelog',    
+};
+
+$Dirs = [
+    "$dest"
+];
+
+$Files = [
+	[$conf, "../conf/framework.conf"],
+    ["$dest", {'find' => '../src -depth -name "*.php"', 'root' => '../src'}]
+];

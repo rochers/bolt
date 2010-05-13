@@ -1,0 +1,90 @@
+ul.referrals li { 
+	display: block;
+	width: 600px;
+	float: none;
+	text-align: left;
+	color: #666;
+	margin-bottom: 1px;
+}
+
+ul.referrals li input[type=text] { 
+
+	padding: 5px;
+	font-size: 20px;
+	width: 300px;
+	color: #000;
+
+}
+
+ul.sharebar li { 
+
+	float: left;
+	text-align: center;
+	width: 200px;
+	padding: 3px 0px;
+	font-size: 18px;
+	line-height: 30px;
+	font-weight: normal;
+	width: auto;
+	margin: 5px;
+	font-size: 12px;
+	line-height: 14px;
+			
+}
+
+div.expanded-share { 
+	margin-bottom: 15px; 
+}
+
+div.expanded-share .left {
+	border-right: 1px solid #d3d3d3;
+}
+
+div.expanded-share .left, div.expanded-share .right  { 
+	width: 50%;
+	float: left;
+
+}
+
+
+div.expanded-share:after { 
+	content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+
+form textarea.tweet { 
+	width: 400px;
+	height: 30px;
+	padding: 10px;
+	font-size: 14px;
+	color: #666;
+}
+
+form input[type=submit].twitter,form input[type=submit].email { 
+	background: #88BBD4 !important;
+	border: 1px solid #59B;
+	color: white;
+	display: block;
+	font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 5px 10px;
+	float: none;
+	margin: 5px 0 0 0;
+}
+
+form input[type=submit].email { 
+	background: #666 !important;
+	border: 1px solid #333;
+}
+
+div.thanks { 
+	font-size: 16px;
+	color: #777;
+	font-style: oblique;
+	margin: 0 0 5px;
+}
