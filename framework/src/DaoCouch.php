@@ -14,6 +14,29 @@ abstract class DaoCouch extends DaoWebservice {
 	
 	}
 	
+	// single 
+	public function row($ep,$data=array(),$method='GET') {
+		
+		// find
+		$resp = $this->request($ep,$data,$method);
+		
+		// none
+		if ( !$resp ){ return false; }
+		
+		// rows
+		if ( !isset($resp['_id']) ) {
+			return $resp[0];
+		}
+		else {
+			return $resp;
+		}
+	
+	}
+	
+	public function query($ep,$data=array(),$method='GET') {
+		return $this->request($ep,$data,$method);
+	}
+	
 	// request
 	public function request($ep,$data=array(),$method='GET') {
 	
@@ -65,6 +88,10 @@ abstract class DaoCouch extends DaoWebservice {
 			
 		}
 		else {
+		
+			$res['id'] = $res['_id'];
+			$res['rev'] = $res['_rev'];
+		
 			return $res;
 		}
 	

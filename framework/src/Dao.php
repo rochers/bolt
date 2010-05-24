@@ -785,6 +785,12 @@ class DaoMock implements Iterator {
 		}
 		return $a;
 	}
+	public function exists($key) {
+		if ( isset($this->data[$key]) ) {
+			return true;
+		}
+		return false;
+	}
 	
 	/////////////////////////////////////////////////
 	/// @brief get item value at given index
