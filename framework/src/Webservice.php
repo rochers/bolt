@@ -1,7 +1,5 @@
 <?php
 
-namespace dao;
-
 /*! @class Webservice
     @abstract A class for retreiving data objects from web service APIs which serve XML or JSON format.
     @discussion The Webservice class supports the Framework Cache if desired, for caching of data objects.
@@ -22,7 +20,7 @@ class Webservice {
 	private $protocol	= 'http';
 
 	// output that should be given by the xml-api
-	private $output		= 'simplexml';
+	private $output		= 'json';
 
 	// literal strings hash or password
 	private $auth_type 	= false;
@@ -58,85 +56,21 @@ class Webservice {
 			$this->$k = $v;
 			
 		}
-		
-		
-		// set the baseUrl
-		$this->baseUrl = $this->protocol . '://' . $this->host;
-		
-		$this->port != 80 ? $this->baseUrl .= ':' . $this->port . '/' : $this->baseUrl .= '/';
-		
-		$this->cache = \Cache::singleton();
 					
 	}
 	
-	
-	/////////////////////////////////////////////////
-	/// @brief MAGIC get a property from data array
-	/// 
-	/// @param name name of the property to get from
-	///        the data array
-	/// @return value if property exists. false
-	///         if property does not exist
-    /////////////////////////////////////////////////
-	public function __get($name) {
-	
-        // data
-        $data = array_merge($this->data,$this->private);
-
-		// if it exists
-		if ( array_key_exists($name,$data) ) {		
-            return $data[$name];										
-		}
-
-        // check for _
-        else if ( mb_strpos($name,'_') ) {
-            
-            // explode out 
-            list($ary,$key) = explode('_',$name);
-            
-            // what
-            if ( array_key_exists($ary,$data) AND is_array($data[$ary]) AND array_key_exists($key,$data[$ary]) ) {
-				return $data[$ary][$key];
-            }
-            
-        }
-        
-        // nope
-        return false;
-
-	}	
-	
-	
-	/////////////////////////////////////////////////
-	/// @brief MAGIC set a property from data array
-	/// 
-	/// @param name name of the property to set in
-	///        the data array
-	/// @param val value to set property to
-	/// @return null
-    /////////////////////////////////////////////////	
-	public function __set($name,$val) {
-	   
-		if ( array_key_exists($name,$this->data) ) {
-		 	$this->data[$name] = $val;
-		} 
-		
-        // check for _
-        else if ( mb_strpos($name,'_') ) {
-            
-            // explode out 
-            list($ary,$key) = explode('_',$name);
-            
-            // what
-            if ( array_key_exists($ary,$this->data) ) {
-                $this->data[$ary][$key] = $val;
-            }
-            
-        }
-
+	public function setHost($host) {
+		$this->host = $host;
 	}
 	
+	public function setPort($port) {
+		$this->port = $port;
+	}
 	
+	protected function getBaseUrl() {
+		return  $this->protocol . '://' . $this->host . ":" . $this->port . "/";		
+	}
+		
 	/*! @function sendRequest
 	    @abstract sends a request to the API server
 	    @param $uri module, method and path of the request
@@ -145,25 +79,28 @@ class Webservice {
         @param $headers additional headers for the request
         @return 
  	*/
-	public function sendRequest($uri,$params=array(),$post=false,$headers=array()) {
+	public function sendRequest($uri,$params=array(),$method='GET',$headers=array()) {
                               
         // url 
-        $url = $this->baseUrl . $uri; 
+        $url = $this->getBaseUrl() . ltrim($uri,'/');  
+        
                      
         // params
         $p = array();
     
             // add our params 
-            foreach ( $params as $k => $v ) {
-                if ( $k AND $v ) {
-                    $p[] = $k."=".rawurlencode($v);
-                }
+            if ( $method == 'GET' ) {
+	            foreach ( $params as $k => $v ) {
+	                if ( $k AND $v ) {
+	                    $p[] = $k."=".rawurlencode($v);
+	                }
+	            }
             }
 
         // append
         if (!empty($p)) { 
-        	$url .= '?'.implode('&',$p);
-        }
+        	$url .= (strpos($uri,'?')===false?'?':':').implode('&',$p);
+        }        
         
         // new curl request
         $ch = curl_init();
@@ -172,13 +109,14 @@ class Webservice {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);    
         curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,5);
 		
         // add headers
-        //curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
+        curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
     
         // add params
-        if ( $post ) {
-	        curl_setopt($ch,CURLOPT_POSTFIELDS,$post);
+        if ( $method == 'POST' ) {
+	        curl_setopt($ch,CURLOPT_POSTFIELDS, http_build_query($params) );
         }
         
         // make the request
@@ -194,7 +132,10 @@ class Webservice {
         	$this->error = $msg;
         	
         	// log
-			error_log($msg);				
+			error_log($msg);
+			
+			// bad
+			return false;
 
         }    
         
@@ -202,13 +143,17 @@ class Webservice {
         curl_close($ch);           
         
         // check result
-        if (empty($result)) { 
-        
-        	$msg = 'Webservice call returned was empty: '. $url;
-        	
-        	error_log($msg);
-        
+        if ( !$result ) { 
+			return false;
         }        
+                  
+		// if json
+		if ( $this->output == 'json' ) {
+			$result = json_decode($result,true);
+		}
+		else if ( $this->output == 'xml' ) {
+			$result = simplexml_load_string($result);
+		}
                    
         // give back
         return $result;

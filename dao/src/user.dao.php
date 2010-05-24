@@ -7,6 +7,7 @@ class user extends \DaoDb {
 	protected $trackChanges = true;
 
 	protected $data = array(
+		'username' => false,
 		'password' => false,
 		'firstname' => false,
 		'lastname' => false,
@@ -49,9 +50,11 @@ class user extends \DaoDb {
 			// the default 
 			$where[] = " u.email = ? ";
 			$where[] = " u.id = ? ";
+			$where[] = " u.username = ? ";			
 			$p[] = $by;
 			$p[] = $by;
-			
+			$p[] = $by;
+						
 		}	
 
 			
@@ -106,12 +109,13 @@ class user extends \DaoDb {
 			); */
 			
 			// normailze
-			$data = $this->normalize();		
+			$data = $this->normalize();							
 					
 			$sql = "
 				UPDATE
 					users 
 				SET 
+					username = ?,
 					password = ?,					
 					firstname = ?,
 					lastname = ?,
@@ -124,6 +128,7 @@ class user extends \DaoDb {
 			";
 			
 			$p = array(
+				$data['username'],			
 				$this->password,			
 				$data['firstname'],
 				$data['lastname'],
@@ -144,6 +149,7 @@ class user extends \DaoDb {
 				INSERT INTO
 					users 
 				SET 
+					username = ?,
 					password = ?,					
 					firstname = ?,
 					lastname = ?,
@@ -154,6 +160,7 @@ class user extends \DaoDb {
 			";
 			
 			$p = array(
+				$data['username'],
 				$this->password,			
 				$data['firstname'],
 				$data['lastname'],

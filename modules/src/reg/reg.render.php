@@ -98,7 +98,6 @@ class reg extends \FrontEnd {
 			
 			// no erro
 			if ( $error === false ) {
-
 			
 				// check if there's a user with this email address
 				$user = new \dao\user('get',array($f['email']));
@@ -143,12 +142,12 @@ class reg extends \FrontEnd {
 				
 					// what 
 					if ( $resp ) {
-						
-						// check for post
-						if ( isset($cfg['post-reg']) ) {														
-							$func = $this->args['template'][$cfg['post-reg']];
-							call_user_func( $func, $fv );
-						}
+												
+						// fire event
+						$this->event->fire('reg',array(
+							'user' => $user,
+							'from' => 'module'
+						));
 						
 						// log me in
 						$r = Session::singleton()->login($user->email,$user->password,true);

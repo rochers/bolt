@@ -350,7 +350,24 @@ class Controller {
 					
 						// isset
 						if ( isset($m[2]) ) {
-							$mod['cfg'] = unserialize(base64_decode(trim($m[2],'()')));
+							// check for base64
+							if ( stripos($m[2],'base64:') !== false ) {
+								$mod['cfg'] = unserialize(
+									base64_decode(
+										trim(
+											str_replace("base64:","",$m[2])
+										,'()')
+									)
+								);
+							}
+							else {
+								$mod['cfg'] = array();
+								$params = explode(",",trim($m[2],'()'));								
+								foreach ( $params as $p ) {
+									list($k,$v) = explode(':',$p);
+									$mod['cfg'][$k] = $v;
+								}
+							}
 						}
 						
 					// modules
@@ -427,7 +444,7 @@ class Controller {
 	}
 
 	public static function printCfg($a,$rtn=false) {
-		$c = base64_encode(serialize($a));
+		$c = "base64:".base64_encode(serialize($a));
 		if ( $rtn )  {
 			return $c;
 		}

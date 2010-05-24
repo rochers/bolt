@@ -1,15 +1,15 @@
-YUI.add("bolt-panel",function(Y) {
+YUI.add("bolt-class-panel",function(Y) {
 
 	// shortcuts
 	var $ = Y.get, $j = Y.JSON;
 
 	// base 
-	BLT.Panel = function(args) {
+	BLT.Class.Panel = function(args) {
 		this.init(args);
 	}
 
 	// base prototype
-	BLT.Panel.prototype = {
+	BLT.Class.Panel.prototype = {
 		
 		// args
 		args : {},
@@ -349,6 +349,6 @@ YUI.add("bolt-panel",function(Y) {
 	} 
 	
 	// we fire some custom events
-	Y.augment(BLT.Panel, Y.EventTarget);
+	Y.augment(BLT.Class.Panel, Y.EventTarget);
 
 });

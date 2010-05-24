@@ -18,8 +18,9 @@ class login extends \FrontEnd {
 			'f' => array(
 				'email' => false
 			),
-			'fbLogin' => $cfg['fbLogin']
+			'fbLogin' => p('fbLogin',false,$cfg)
 		);
+			
 		
 		// check for a submit request
 		if ( p('do') == 'login.submit' ) {
@@ -64,6 +65,7 @@ class login extends \FrontEnd {
 			
 		}
 		else if ( p('auth') == 'facebook' ) {
+
 			
 			// check with facebook to see if they're loged in	
 			$fbuser = \Fb::singleton()->getUser();
@@ -80,6 +82,12 @@ class login extends \FrontEnd {
 								
 				if (!$user->tags) { $user->tags = new \dao\tags(); }
 				
+				// pick
+				$user->profile_pic = "https://graph.facebook.com/{$u['id']}/picture?type=square";
+				
+				// fb profile
+				$user->profile_fb = $u;											
+				
 				// no user we have to send them to register
 				if ( !$user->id ) {
 					
@@ -93,18 +101,19 @@ class login extends \FrontEnd {
 					$user->lastname = implode(' ',$name);
 					
 					// area
-					$area = Session::getMeValue('area');
-					
-					// set area			
-					$user->setProfile('area', $area );
+					$area = Session::getMeValue('area');				
 										
 					// add fb tag
 					$user->tags->add( 'fb',$fbuser );
-					$user->tags->add( 'area',$area );
-					$user->tags->add( 'emails','true' );
-										
-					// save me 
-					$resp = $user->save();			
+					
+					// save
+					$user->save();						
+					
+					// fire event
+					$this->event->fire('reg',array(
+						'user' => $user,
+						'from' => 'fb-login'
+					));					
 									
 				}
 				
@@ -116,11 +125,12 @@ class login extends \FrontEnd {
 					
 					// add a facebook tag to their account
 					$user->tags->add( 'fb',$fbuser );
-					
-					// save
-					$user->save();
-					
+										
 				} 
+				
+				// save
+				$user->save();				
+				
 				
 				// go home
 				if ( p('xhr') ) {

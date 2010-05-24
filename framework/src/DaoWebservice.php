@@ -1,109 +1,38 @@
 <?php
 
-abstract class DaoWebservice extends Webservice {
+abstract class DaoWebservice extends Dao {
 	
-	protected $webservice = false;
-	protected $data = array();
-	protected $items = array();
+	protected $_ws = false;
+	protected $_host = false;
+	protected $_port = false;
 
-	public function __construct($type='get',$cfg=array()) {
+	public function __construct($type=false,$args=array()) {
 		
-		// db
-		//$this->db = Database::singleton();
-		
-		// if get param
-		if ( $type == 'get' ) {		
-			call_user_func_array(array($this,'get'),(array)$cfg);
-		}
-		else if ( $type == 'set' ) {
-		
-			$this->set($cfg);
-		}		
+		// ws
+		$this->_ws = new Webservice();
+	
+		// parent
+		parent::__construct($type,$args);	
 		
 	}
-	
-	public function get() {
-		return $this->data;
+		
+	// send request
+	public function sendRequest($ep,$params=array(),$method='GET',$headers=array()) {
+		
+		// set in ws
+		$this->_ws->setHost($this->_host);
+		$this->_ws->setPort($this->_port);
+
+		// path
+		return $this->_ws->sendRequest(
+			$ep,
+			$params,
+			$method,
+			$headers
+		);
+
 	}
-	
-	public function set($data){
-		$this->data = $data;
-	}
-
-	public function __get($name) {
-		if ( array_key_exists($name,$this->data) ) {		
-						
-			// if it's an array we want to turn
-			// it into an object
-			if ( is_array($this->data[$name]) ) {
-			
-				// set the new val
-				$this->data[$name] = $this->objectify($this->data[$name]);
-	
-			}
-			
-			// hi val
-			return $this->data[$name];
-	
-		}
-		else {
-			return false;
-		}
-	}
-	
-	private function objectify($array) {
-	
-		if(!is_array($array) OR is_numeric(key($array)) ) {
-			return $array;
-		}
-	
-		$object = new stdClass();
-		if (is_array($array) && count($array) > 0) {
-		  foreach ($array as $name => $value) {
-		        $object->$name = $this->objectify($value);
-		  }
-	      return $object; 
-		}
-	    else {
-	      return false;
-	    }
-
-
-	}		
-
-	
-	public function __set($name,$val) {
-		$this->data[$name] = $val;
-	}	
-	
-	public function item($idx=0) {
-		return $this->items[$idx];
-	}
-
-    public function rewind() {
-        reset($this->items);
-    }
-
-    public function current() {
-        $var = current($this->items);
-        return $var;
-    }
-
-    public function key() {
-        $var = key($this->items);
-        return $var;
-    }
-
-    public function next() {
-        $var = next($this->items);
-        return $var;
-    }
-
-    public function valid() {
-        $var = $this->current() !== false;
-        return $var;
-    }
-
+		
 }
 
 ?>

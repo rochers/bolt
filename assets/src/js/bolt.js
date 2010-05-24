@@ -4,6 +4,9 @@
 // new yui
 var f = function(Y) { 
 
+	// called to load
+	Y.on('domready',function(){ BLT.Obj = new BLT.Base(); BLT.execute('l'); },window);
+
 	// shortcuts
 	var $ = Y.get, $j = Y.JSON;
 
@@ -15,12 +18,7 @@ var f = function(Y) {
 	if ( /msie/.test(navigator.userAgent.toLowerCase()) ) { $(document.body).addClass('ie'); }
 
 	// load images
-	var img = new Y.ImgLoadGroup({ timeLimit: 2, foldDistance: 30 });
-		img.set('className', 'defer');
-
-
-	// called to load
-	Y.on('domready',function(){ BLT.Obj = new BLT.Base(); BLT.execute('l'); },window);
+	var img = new Y.ImgLoadGroup({ timeLimit: 2, foldDistance: 30 }); img.set('className', 'defer');
 
 	// base 
 	BLT.Base = function() {
@@ -32,6 +30,7 @@ var f = function(Y) {
 		
 		// args
 		store : { },
+		class : {},
 		
 		// init 
 		init : function() {
@@ -89,7 +88,7 @@ var f = function(Y) {
 			var self = this;
 			
 			// generl panel
-			this.panel = new BLT.Panel({});			
+			this.panel = new BLT.Class.Panel({});			
 			
 			// events
 			this.publish('blt-base:docclick');			
