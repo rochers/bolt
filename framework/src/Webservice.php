@@ -109,21 +109,22 @@ class Webservice {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);    
         curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,5);        
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 		
         // add headers
         curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
     
         // add params
-        if ( $method == 'POST' ) {
-	        curl_setopt($ch,CURLOPT_POSTFIELDS, http_build_query($params) );
+        if ( $method == 'POST' OR $method == 'PUT' ) {
+	        curl_setopt($ch,CURLOPT_POSTFIELDS, $params );
         }
         
         // make the request
         $result = curl_exec($ch);    
                     
 		// bad curl call
-        if ( curl_getinfo($ch,CURLINFO_HTTP_CODE) != 200) {
+        if ( curl_getinfo($ch,CURLINFO_HTTP_CODE) > 300) {
         	
         	// show error
         	$msg = 'Webservice Error ' . curl_getinfo($ch,CURLINFO_HTTP_CODE) . ',' . $url;
@@ -133,6 +134,7 @@ class Webservice {
         	
         	// log
 			error_log($msg);
+			error_log($result);
 			
 			// bad
 			return false;

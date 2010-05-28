@@ -347,6 +347,9 @@ abstract class Dao {
                             
                             // datetime
                             case 'timestamp':
+                            	
+                            	// if no value
+                            	if ( !$value ) { break; }
                             
                             	// check user for a tzoffset
 						        $u = Session::getUser();

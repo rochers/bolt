@@ -37,6 +37,60 @@ abstract class DaoCouch extends DaoWebservice {
 		return $this->request($ep,$data,$method);
 	}
 	
+	public function post($ep,$data) {
+	
+		// since posts are pretty bad,
+		// we do a PUT instead and generate 
+		// a uuid ourself. if you really need 
+		// to do a post _post
+		return $this->put($ep,$data);	
+	
+	}
+	
+	public function put($ep,$data,$noId=false) {
+		
+		// do they already have an id
+		if ( $noId === false ) {
+		
+			// get uuid	
+			$id = FrontEnd::getUuid();
+	
+			// add to ep
+			$ep = rtrim($ep,'/').'/'.$id;
+			
+		}
+	
+		// end put
+		$resp = $this->sendRequest($ep,json_encode($data),"PUT");
+		
+		// what up 
+		if ( isset($resp['ok']) ) {
+		
+			// update the rev
+			$this->data['_rev'] = $this->data['rev'] = $resp['rev'];
+			$this->data['_id'] = $this->data['id'] = $resp['id'];
+			
+			// fire off an event
+			$this->event->fire("dao-save",array(
+				'data' => $this->normalize(),
+				'endpoint' => $ep ,
+				'dao' => get_class($this)
+			));
+			
+			// yep
+			return true;
+			
+		}
+		else {
+			return false;
+		}
+		
+	}
+	
+	public function _post($ep,$data) {
+		return $this->request($ep,$data,'POST');
+	}
+	
 	// request
 	public function request($ep,$data=array(),$method='GET') {
 	
