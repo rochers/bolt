@@ -105,6 +105,8 @@ class Webservice {
         // new curl request
         $ch = curl_init();
 
+//var_dump($url);
+
         // set some stuff
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);    

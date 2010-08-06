@@ -51,7 +51,7 @@
 	}
 	
 	// set 
-    date_default_timezone_set("UTC");      
+    date_default_timezone_set((defined('DEFAULT_TZ') ? DEFAULT_TZ : "UTC"));      
 
 	// local
 	setlocale(LC_MONETARY, 'en_US');
@@ -408,43 +408,30 @@
 			
 			// check for days
 			if($days) {
-					$theText .= '<span class="days"><span id="days" class="num">'.$days . "</span> day";
+					$theText .= $days . " day";
 					
 					if ($days > 1) { $theText .= 's'; }
-					
-					$theText .= '</span> ';
-									
+						
 			} 
 			
-			//if($hours) {
-				
-					$theText .= '<span class="hours"><span id="hours" class="num">'.$hours . "</span> hour";
+			if ( $hours > 0 ) {
+			
+					$theText .= ' '.$hours . " hour";
 				
 					if ($hours > 1) { $theText .= 's'; }
-					
-					$theText .= '</span> ';
-								
-			//} 
 			
-			//if($mins) {
+			}
 					
-					$theText .= '<span class="mins"><span id="mins" class="num">'.$mins . "</span> min";
+					
+					$theText .= ' '.$mins . " min";
 					
 					if ($mins > 1) { $theText .= 's'; }		
-					
-					$theText .= '</span> ';		
-				
-			//}
+
 			
-			//if($secs) {
-			
-					$theText .= '<span class="secs"><span id="secs" class="num">'.$secs . "</span> sec";
+					$theText .= ' '.$secs . " sec";
 					
 					if ($secs > 1) { $theText .= 's'; }
-					
-					$theText .= '</span> ';
-								
-			//}
+
 					
 		}
 		

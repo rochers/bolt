@@ -101,6 +101,9 @@ abstract class Dao {
 			}
 			
         }
+        else if ( isset($this->{"_{$name}"}) ) {
+        	return $this->{"_{$name}"};
+        }
        
         
         // nope
@@ -704,7 +707,22 @@ abstract class Dao {
 	/// @return value at given index
 	/////////////////////////////////////////////////		
 	public function item($idx=0) {
-		return $this->items[$idx];
+		if ( count($this->items) == 0 ) { 
+			return false; 
+		}
+		else if ( $idx == 'first' ) {
+			return array_shift( array_slice($this->items,0,1) );
+		}
+		else if ( $idx == 'last' ) {
+			return array_shift( array_slice($this->items,-1) );
+		}
+		else if ( array_key_exists($idx,$this->items) ) {		
+			return $this->items[$idx];
+		}
+		else {
+			return false;
+		}
+		
 	}
 
 

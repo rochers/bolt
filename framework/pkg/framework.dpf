@@ -1,0 +1,28 @@
+# framework.dpf -- 2010-08-06		
+		
+# internal variables
+src = ../src
+htdocs = /home/bolt/share/htdocs
+pear = /home/bolt/share/pear/Bolt
+conf = /home/bolt/conf/httpd
+
+# meta data
+meta project = bolt
+meta name = framework
+meta version = file:changelog
+meta summary = Bolt Framework
+meta description = Bolt Framework Files
+meta changelog = changelog
+
+
+# dir
+dir - - - $(pear)
+dir - - - $(htdocs)
+dir - - - $(conf)
+
+# pear
+find - - - $(pear)			$(src)/pear
+find - - - $(htdocs)		$(src)/htdocs
+
+# set our conf file
+settings $(conf)	../conf/bolt_framework.conf
