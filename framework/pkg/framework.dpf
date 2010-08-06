@@ -3,7 +3,7 @@
 # internal variables
 src = ../src
 htdocs = /home/bolt/share/htdocs
-pear = /home/bolt/share/pear/Bolt
+pear = /home/bolt/share/pear/bolt/framework
 conf = /home/bolt/conf/httpd
 
 # meta data
@@ -14,6 +14,8 @@ meta summary = Bolt Framework
 meta description = Bolt Framework Files
 meta changelog = changelog
 
+# dev mode
+set dev.mode false
 
 # dir
 dir - - - $(pear)

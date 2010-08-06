@@ -1,7 +1,17 @@
-<?php
+<?php // (c) 2010 - bolthq
 
+	// auto load
+    // tell the autoloader where the locations to look
+    // for our files are
+    $GLOBALS['_auto_loader'] = array(
+        array( '.php', FRAMEWORK),
+    	array( '.dao.php', "/home/bolt/share/pear/bolt/dao/"), 
+    );	
+	
 	///////////////////////////////////
-	/// AUTOLOAD
+	/// @brief autoload class class
+	///
+	/// @param $class class name
 	///////////////////////////////////	
 	function __autoload($class) { 
 	
@@ -36,26 +46,19 @@
 			
 		}
 	
-	}
+	}	
 	
-	// require
-	require_once(FRAMEWORK."Database.php");
-
-	// define the bolt module template
-	define("BOLT_MODULES","/home/bolt/share/pear/bolt/modules/");
-
-	// dev
-	if ( defined('DEV') AND DEV === true ) {
+	// dev mode?
+	if ( defined('DevMode') AND DevMode === true ) {
+	
+		// error reporting
 	    error_reporting(E_ALL^E_DEPRECATED);
+	    
+	    // display errors
 	    ini_set("display_errors",1);		
+	    
 	}
 	
-	// set 
-    date_default_timezone_set((defined('DEFAULT_TZ') ? DEFAULT_TZ : "UTC"));      
-
-	// local
-	setlocale(LC_MONETARY, 'en_US');
-
     // get the file name
     $path = explode("/",$_SERVER['SCRIPT_FILENAME']);
 
@@ -85,18 +88,170 @@
 	define("DATE_SHORT_FRM", "F jS, Y \n h:i:s A");	
 	define("DATE_ONLY", "l, F jS, Y");	
 	define("TIME_FRM", "h:i:s A");	
+	
+	
+	////////////////////////////////
+	///  @breif config
+	////////////////////////////////
+	abstract class Bolt {
+	
+		////////////////////////////////
+		///  @breif start
+		////////////////////////////////	
+		public static function start() {}	
+	
+	
+		////////////////////////////////
+		///  @breif prePage
+		////////////////////////////////	
+		public static function prePage() {}
+		
+		
+		////////////////////////////////
+		///  @breif preRoute
+		////////////////////////////////		
+		public static function preRoute() {}
+	
+	
+		////////////////////////////////
+		///  @breif preRoute
+		////////////////////////////////			
+		public static function getPage() {
+		  
+	        // default page
+    	    $page = "404";
+       
+			// path
+        	$path = (getenv("REDIRECT_boltPath")?getenv("REDIRECT_boltPath"):getenv("boltPath"));
+                
+	        // check for assets
+    	    if ( trim($path,'/') == 'combo' ) {
+        	    Controller::printAssets( p('f'),p('type','css') );
+        	}
+                
+			// pages
+			$pages = Config::get('pages');
+                  
+			// go through and parse the path, look for matches (defined above)
+            foreach ($pages as $pattern=>$args) {
+                   
+                    // look for matches based on rewrite rules
+                    if (preg_match('#'.$pattern.'#',$path,$matches)) {
+                           
+                            // if found, set the page
+                            $page = $args['page'];
+                           
+                            // set other arguments in the GET
+                            foreach ($args as $a=>$v) {
+                                   
+                                    if (is_int($v) AND isset($matches[$v])) {                                                  
+                                            $_REQUEST[$a] = $matches[$v];                                          
+                                    }
+                                    else if ( !is_numeric($v) ) {
+                                            $_REQUEST[$a] = $v;                                            
+                                    }
+                                   
+                            }
+                           
+                            //no need to continue the matching
+                            break;
+                           
+                    }
+           
+            }
+                                
+    	    // give back
+	        return $page;		
+		
+		}
+	
+	}
+	
 
 	////////////////////////////////
 	///  @breif config
 	////////////////////////////////
 	class Config {	
 	
-		// config
-		private static $config = array(
-            'db' => array(),
-			'urls' => array(),
-			'paths' => array(),
-		);	
+		/// config holder array
+		private static $config = array();		
+	
+	
+		//////////////////////////////////////////
+		///  @breif load a settings file		
+		///
+		///  @param $file full path to settings file
+		///					file must exists
+		//////////////////////////////////////////
+		public static function load($file) {
+		
+			// not there
+			if ( !file_exists($file) ) { return false; }
+		
+			// load the file with sections
+			$ini = parse_ini_file($file, true, INI_SCANNER_RAW);
+			
+			// format
+			$format = function($v, $ini) {						
+				
+				// matched
+				$match = array();
+				
+				// check for any %
+				if ( preg_match_all("/\%([a-zA-Z0-9\.]+)\%/", $v, $match, PREG_SET_ORDER) ) {
+					
+					// loop through the matches and try to 
+					// replace them
+					foreach ( $match as $m ) {
+						
+						// get the sec and key
+						list($sec, $key) = explode(".", $m[1]);
+						
+						// replace
+						if ( isset($ini[$sec][$key]) ) {
+							$v = str_replace($m[0], $ini[$sec][$key], $v);
+						}
+						
+					}
+				
+				}
+				
+				// json
+				if ( substr($v,0,1) == '{' ) {
+					$v = json_decode($v, true);
+				}													
+				
+				// ack
+				return $v;
+							
+			};
+						
+			// loop through each section and set
+			foreach ( $ini as $sec => $set ) {
+				
+				// need to sanatize 
+				foreach ( $set as $k => $v ) {
+				
+					// is v and 
+					if ( is_array($v) ) {
+						foreach ( $v as $i => $_v ) {
+							$ini[$sec][$k][$i] = $format($_v, $ini);
+						}
+					}
+					else {
+						$ini[$sec][$k] = $format($v, $ini);
+					}
+				
+
+				}
+								
+				// set 
+				self::set($sec, $ini[$sec]);
+								
+			}
+			
+		}
+
 		
 		////////////////////////////////
 		/// @breif get a predefined config
@@ -136,14 +291,7 @@
 		public static function set($var,$val) {
 			self::$config[$var] = $val;		
 		}
-					
-		public static function asset($type,$file,$project='global') {
-			if (stripos($file,'http') === 0) { 
-				return $file;
-			} else { 
-				return "/assets/{$project}/{$type}/{$file}";
-			}
-		}
+	
 	
 		////////////////////////////////
 		/// @breif get a url
