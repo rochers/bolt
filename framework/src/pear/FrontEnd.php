@@ -7,7 +7,7 @@ include('Mail.php');
 /////////////////////////
 /// Framework
 /////////////////////////	
-abstract class FrontEnd extends DatabaseMask  {
+abstract class FrontEnd {
 		
 	// holders
 	protected $db = false;
@@ -22,8 +22,7 @@ abstract class FrontEnd extends DatabaseMask  {
 	
 		$this->args = $args;
 
-		// database
-		$this->db = Database::singleton();					
+		// database					
 		$this->cache = Cache::singleton();
 		$this->event = Events::singleton();
 		

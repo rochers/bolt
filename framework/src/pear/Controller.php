@@ -117,7 +117,7 @@ class Controller {
 		
 		// try to figure out the 
 		// path of the template 
-		$base = Config::get('paths/page_templates',true);		
+		$base = Config::get('paths/pages',true);		
 		
 		// if there's a project 
 		// we need to add it's folder
@@ -154,7 +154,7 @@ class Controller {
 		$args['_args'] = $o->args;
 		
 		// render the template 
-		$global = self::renderTemplate( Config::get('paths/global_template'), $args, $base );	
+		$global = self::renderTemplate( Config::get('site/globalTemplate'), $args, $base );	
 										
 		// added embed lists
 		$args['cssEmbedList'] = Controller::printEmbedList('css',true);

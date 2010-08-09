@@ -8,38 +8,31 @@
 class Webservice { 
 
 	// should debugging statements be printed?
-	private $debug		= false;
+	protected $debug		= false;
 	
 	// The host to connect to
-	private $host		= false;
+	public $host		= false;
 
 	// the port to connect to
-	private $port		= 80;
+	public $port		= 80;
 
 	// should be the literal strings http or https
-	private $protocol	= 'http';
+	public $protocol	= 'http';
 
 	// output that should be given by the xml-api
-	private $output		= 'json';
-
-	// literal strings hash or password
-	private $auth_type 	= false;
+	public $output		= 'json';
 
 	//  the actual password or hash
-	private $auth 		= false;
-	
-	// username to authenticate as
-	private $user		= false;
+	public $auth 		= false;
 	
 	// The HTTP Client to use
-	private $method		= 'curl';
+	public $method		= 'curl';
 	
 	// The HTTP Client to use
-	private $baseUrl	= false;
+	public $baseUrl	= false;
 	
-	public $cache = false;
-	
-	protected $private  = array();
+	// headers
+	public $headers = array();
 	
 	
 	/*! @function __construct
@@ -83,7 +76,9 @@ class Webservice {
                               
         // url 
         $url = $this->getBaseUrl() . ltrim($uri,'/');  
-        
+		
+		// headers
+		$headers = array_merge($this->headers, $headers);        
                      
         // params
         $p = array();
@@ -105,8 +100,6 @@ class Webservice {
         // new curl request
         $ch = curl_init();
 
-//var_dump($url);
-
         // set some stuff
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);    
@@ -120,6 +113,11 @@ class Webservice {
         // add params
         if ( $method == 'POST' OR $method == 'PUT' ) {
 	        curl_setopt($ch,CURLOPT_POSTFIELDS, $params );
+        }
+        
+        // auth
+        if ( $this->auth !== false ) {
+        	curl_setopt($ch, CURLOPT_USERPWD, "{$this->auth['username']}:{$this->auth['password']}");
         }
         
         // make the request

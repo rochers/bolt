@@ -5,7 +5,7 @@
     // for our files are
     $GLOBALS['_auto_loader'] = array(
         array( '.php', FRAMEWORK),
-    	array( '.dao.php', "/home/bolt/share/pear/bolt/dao/"), 
+    	array( '.dao.php', "/home/bolt/share/pear/bolt/"), 
     );	
 	
 	///////////////////////////////////
@@ -14,11 +14,11 @@
 	/// @param $class class name
 	///////////////////////////////////	
 	function __autoload($class) { 
-	
+		
+		// replace
+		
 		// we only want the last part of the class
-		if ( strpos($class,'\\') !== false ) {
-			$class = array_pop( explode('\\',$class) );
-		}
+		$class = str_replace('\\', "/", $class);
 	
 		// check for autoload in global
 		if ( !isset($GLOBALS['_auto_loader']) ) {
@@ -34,7 +34,9 @@
 			}
 		
 			// file name
-			$file = $path[1].$class.$path[0];		
+			$file = formatDirName($path[1]).$class.$path[0];		
+			
+//			var_dump($file, $class);
 		
 			// does it exist
 			if ( file_exists($file) ) {
@@ -49,7 +51,7 @@
 	}	
 	
 	// dev mode?
-	if ( defined('DevMode') AND DevMode === true ) {
+//	if ( defined('DevMode') AND DevMode === true ) {
 	
 		// error reporting
 	    error_reporting(E_ALL^E_DEPRECATED);
@@ -57,7 +59,7 @@
 	    // display errors
 	    ini_set("display_errors",1);		
 	    
-	}
+//	}
 	
     // get the file name
     $path = explode("/",$_SERVER['SCRIPT_FILENAME']);
@@ -90,6 +92,9 @@
 	define("TIME_FRM", "h:i:s A");	
 	
 	
+	// modules we always need that are not named
+	require(FRAMEWORK."Database.php");
+	
 	////////////////////////////////
 	///  @breif config
 	////////////////////////////////
@@ -120,6 +125,11 @@
 		  
 	        // default page
     	    $page = "404";
+    	    
+    	    	// default page
+    	    	if ( Config::get('site/defaultPage') ) {
+    	    		$page = Config::get('site/defaultPage');
+    	    	}
        
 			// path
         	$path = (getenv("REDIRECT_boltPath")?getenv("REDIRECT_boltPath"):getenv("boltPath"));
@@ -133,31 +143,40 @@
 			$pages = Config::get('pages');
                   
 			// go through and parse the path, look for matches (defined above)
-            foreach ($pages as $pattern=>$args) {
-                   
-                    // look for matches based on rewrite rules
-                    if (preg_match('#'.$pattern.'#',$path,$matches)) {
-                           
-                            // if found, set the page
-                            $page = $args['page'];
-                           
-                            // set other arguments in the GET
-                            foreach ($args as $a=>$v) {
-                                   
-                                    if (is_int($v) AND isset($matches[$v])) {                                                  
-                                            $_REQUEST[$a] = $matches[$v];                                          
-                                    }
-                                    else if ( !is_numeric($v) ) {
-                                            $_REQUEST[$a] = $v;                                            
-                                    }
-                                   
-                            }
-                           
-                            //no need to continue the matching
-                            break;
-                           
-                    }
-           
+			foreach ($pages as $pg => $args) {
+			
+				// look for matches based on rewrite rules
+				if (preg_match('#'.$args['uri'].'#',$path,$matches)) {
+					
+					// this is our page
+					$page = $pg;			
+						
+						// override with page
+						if ( isset($args['_page']) ) {
+							$page = $args['_page'];	unset($args['_page']);
+						}
+			                      
+					// set other arguments in the GET
+					foreach ($args as $a=>$v) {
+			
+						// uri
+						if ( $a == 'uri' ) { continue; }
+						
+						// is int
+						if (is_int($v) AND isset($matches[$v])) {                                                  
+							$_REQUEST[$a] = $matches[$v];                                          
+						}
+						else if ( !is_numeric($v) ) {
+							$_REQUEST[$a] = $v;                                            
+						}
+			
+					}
+			
+					//no need to continue the matching
+					break;
+			
+				}
+			
             }
                                 
     	    // give back
@@ -268,7 +287,7 @@
 				}			
 
 			// what evn
-			$var_pf = $var . (DEV?'_dev':'_prod');
+			$var_pf = $var . (DevMode?'_dev':'_prod');
 			
 			// val
 			$val = false;
@@ -617,22 +636,25 @@
 	return $return;
 	} 	
 	
-	function show_404($page=false) {
+	function show_404($page=_404) {
 		ob_clean();
 		header("HTTP/1.1 404 Not Found",TRUE,404); 
-		
-		if (!file_exists($page)) {
-			$page = '/home/bolt/share/pear/bolt/framework/404.php';
+	
+		if (!file_exists(_404)) {
+			$page = _404;
 		} 
+	
 		
-		include($page);
-		
-		die;
+		exit(include($page));
 	}
 
 	function factory($n,$ns='dao') {
 		$class = '\\'.$ns.'\\'.$n;
 		return new $class;
+	}
+	
+	function formatDirName($dir) {
+		return rtrim($dir,'/')."/";
 	}
 	
 ?>
