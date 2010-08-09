@@ -16,9 +16,9 @@ abstract class Mongo extends \Dao {
 	public function __construct($type=false,$args=array()) {
 
 		// get some
-		$this->_host = Config::get('site/mongoHost');
-		$this->_port = Config::get('site/mongoPort');
-		$this->_db = Config::get('site/mongoDb');
+		$this->_host = \Config::get('mongo/host');
+		$this->_port = \Config::get('mongo/port');
+		$this->_db = \Config::get('mongo/db');
 
 		// parent
 		parent::__construct($type,$args);
@@ -34,10 +34,10 @@ abstract class Mongo extends \Dao {
 		try { 
 
 			// set dbh
-			$this->dbh = new Mongo("mongodb://{$this->_host}:{$this->_port}");
+			$this->dbh = new \Mongo("mongodb://{$this->_host}:{$this->_port}");
 
 		}
-		catch ( MongoConnectionException $e ) { die( $e->getMessage() ); }
+		catch ( \MongoConnectionException $e ) { die( $e->getMessage() ); }
 
 	}
 
@@ -152,7 +152,10 @@ abstract class Mongo extends \Dao {
 		$sth = $db->{$collection};			
 
 		// run it
-		return $sth->update($query,$data,$opts);
+		$r = $sth->update($query,$data,$opts);
+		
+		// return
+		return $r;
 
 	}
 

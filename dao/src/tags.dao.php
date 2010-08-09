@@ -6,7 +6,7 @@ namespace dao;
 /// @brief tags dao
 /// @extends DaoDb
 /////////////////////////////////////////////////
-class tags extends \DaoDb {
+class tags extends Db {
 
 
 	/////////////////////////////////////////////////
@@ -186,6 +186,32 @@ class tags extends \DaoDb {
 		$this->items = array();
 	}
 
+
+	/////////////////////////////////////////////////
+	/// @brief does a tag exist
+	///
+	/// @param $tag tag to search for
+	/// @return void
+	/////////////////////////////////////////////////   
+	public function exists($tag) {
+		
+		// if it's an array we need to convert to a tag
+		if ( is_array($tag) ) {
+			$tag = new tag('set', $tag);
+		}
+		
+		// loop
+		foreach ( $this->items as $tg ) {
+			if ( $tg->id == $tag->id ) {
+				return true;
+			}
+		}
+		
+		// no
+		return false;
+	
+	}
+	
 }
 
 ?>

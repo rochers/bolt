@@ -11,13 +11,13 @@ class Cache {
 		// base_ns
 		// we add the host so that dev boxes
 		// have their own cache namespace
-		$this->basens = Config::get('site/cache-prefix').":";
+		$this->basens = Config::get('cache/prefix').":";
 	
 		// $mem
 		$this->memcache = new Memcache;
 		
 		// host
-		$hosts = explode(',',Config::get('site/cache-host')); 
+		$hosts = explode(',',Config::get('cache/host')); 
 	
 		// add our servers
 		foreach ( $hosts as $host ) { 
@@ -46,7 +46,7 @@ class Cache {
 		$cid = "{$this->basens}:{$ns}:{$key}";
 		
 		// turn caching off in dev
-		if ( DEV ) {
+		if ( DevMode ) {
 			return false;
 		}
 		

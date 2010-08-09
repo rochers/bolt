@@ -11,7 +11,7 @@ abstract class Webservice extends \Dao {
 	// info
 	protected $host = false;	
 	protected $port = false;
-	
+
 	// ws
 	private $ws = false;
 

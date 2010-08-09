@@ -1,4 +1,7 @@
 <?php // (c) 2010 - bolthq
+	
+	// our stuff
+	define("CONFIG",	"/home/bolt/config/");
 
 	// auto load
     // tell the autoloader where the locations to look
@@ -91,9 +94,22 @@
 	define("DATE_ONLY", "l, F jS, Y");	
 	define("TIME_FRM", "h:i:s A");	
 	
-	
+	// date
+	date_default_timezone_set("UTC");
+		
 	// modules we always need that are not named
 	require(FRAMEWORK."Database.php");
+	
+	// we need their project config
+	Config::load(CONFIG . PROJECT . ".ini");
+	
+		// add dao to autoload
+		if ( is_array(Config::get('autoload/file')) ) {
+			foreach ( Config::get('autoload/file') as $file ) {
+				$GLOBALS['_auto_loader'][] = $file;
+			}
+		}	
+	
 	
 	////////////////////////////////
 	///  @breif config

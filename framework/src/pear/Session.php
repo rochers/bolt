@@ -4,6 +4,7 @@ class Session extends DatabaseMask {
 
 	// private
 	private static $instance = false;
+	private $cache = false;
 	
 	// public
 	public $loged = false;
@@ -12,6 +13,7 @@ class Session extends DatabaseMask {
 	public $sid = false;
 	public $user = false;
 	public static $me = array();
+	
 
 	private function __construct() {
 
@@ -20,7 +22,7 @@ class Session extends DatabaseMask {
 		$this->cache =  Cache::singleton();
 	
 		// no session
-		if ( Config::get('site/no-session') == true ) {
+		if ( Config::get('site/noSession') == true ) {
 			return;
 		}
 		
@@ -58,8 +60,8 @@ class Session extends DatabaseMask {
 	public function login($email,$pass,$encrypted=false) {
 	
 		// cookie names
-		$a = Config::get('site/cookie-user-session');
-		$b = Config::get('site/cookie-user-auth');
+		$a = Config::get('site/cookieUserSession');
+		$b = Config::get('site/cookieUserAuth');
 	
 		// password not encrupted
 		if ( !$encrypted ) {
@@ -115,8 +117,8 @@ class Session extends DatabaseMask {
 		$this->getSession();
 
 		// cookie names
-		$a = Config::get('site/cookie-user-session');
-		$b = Config::get('site/cookie-user-auth');
+		$a = Config::get('site/cookieUserSession');
+		$b = Config::get('site/cookieUserAuth');
 
 		// remove sid
 		$this->cache->delete($this->sid,'sessions');
@@ -162,8 +164,8 @@ class Session extends DatabaseMask {
 		}
 	
 		// cookie names
-		$a = Config::get('site/cookie-user-session');
-		$b = Config::get('site/cookie-user-auth');	
+		$a = Config::get('site/cookieUserSession');
+		$b = Config::get('site/cookieUserAuth');
 	
 		// get cookies
 		$acookie = p($a,false,$_COOKIE);
@@ -212,6 +214,9 @@ class Session extends DatabaseMask {
 						Config::set('loged',true);
 						Config::set('user',$this->user);
 						Config::set('sid',$this->sid);
+						
+						// tell controler
+						Controller::registerGlobal('_user', $this->user);
 					
 						// last active 
 						$sess['last_active'] = time();
@@ -239,7 +244,7 @@ class Session extends DatabaseMask {
 	public static function getMeCookie() {
 	
 		// get cookie
-		$cookie = p_raw(Config::get('site/cookie-me'),"",$_COOKIE);
+		$cookie = p_raw(Config::get('site/cookieMe'),"",$_COOKIE);
 
 		// set it 
 		$me = json_decode( base64_decode($cookie), true );
@@ -282,7 +287,7 @@ class Session extends DatabaseMask {
 		self::$me = $me;
 	
 		// set me 
-		setcookie(Config::get('site/cookie-me'), base64_encode(json_encode($me)),time()+(60*60*24*365),'/',COOKIE_DOMAIN,false,false);				
+		setcookie(Config::get('site/cookieMe'), base64_encode(json_encode($me)),time()+(60*60*24*365),'/',COOKIE_DOMAIN,false,false);				
 		
 	
 	}
@@ -307,7 +312,7 @@ class Session extends DatabaseMask {
 	public function generateFormToken() {
 	
 		// what
-		$ts = Config::get('site/cookie-token-session');
+		$ts = Config::get('site/cookieTokenSession');
 
 		// if yes
 		if ( $ts ) {

@@ -1,5 +1,7 @@
 <?php
 
+namespace dao;
+
 /////////////////////////////////////////////////
 /// @brief parent class for all database
 ///        database dao objects
@@ -16,7 +18,7 @@ abstract class Db extends \Dao {
     /// @param cfg configure options to pass to action after
     ///        construction
     /////////////////////////////////////////////////
-	public function __construct($type=false,$cfg=array()) {
+	public function __construct($type=false, $cfg=array()) {
 
 		// db
 		$this->db = \Database::singleton();	

@@ -372,14 +372,19 @@ abstract class FrontEnd {
 		return str_replace(".{$x}","_thumb.{$x}",$str);
 	}
 	
-	public function uuid($parts=4) {
-		return self::getUuid($parts);
+	public function uuid($parts=4, $prefix=false) {
+		return self::getUuid($parts, $prefix);
 	}
 	
-	public static function getUuid($parts=4) {
+	public static function getUuid($parts=4, $prefix=false) {
+	
+		// uuid
+		$uuid = array_slice(explode('-',trim(`uuid`)),0,$parts);
+			
+			// prefix
+			if ( $prefix ) { $uuid = array_merge(array($prefix), $uuid); }
 
-			$uuid = implode('-',array_slice(explode('-',trim(`uuid`)),0,$parts));
-		return $uuid;
+		return strtolower(implode('-',$uuid));
 	}
 	
 	

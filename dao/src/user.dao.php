@@ -1,8 +1,8 @@
 <?php
 
-namespace dao;
+namespace Dao;
 
-class user extends \DaoDb {
+class user extends Db {
 
 	protected $trackChanges = true;
 

@@ -1,6 +1,5 @@
 <?php
         
-
 	// framework
 	define("FRAMEWORK",	"/home/bolt/share/pear/bolt/framework/");
 	define("CONFIG",	"/home/bolt/config/");
@@ -9,27 +8,20 @@
 	// dev
 	define("DevMode",( getenv("bolt_framework__dev_mode") == 'true' ? true : false ));
 	
+	// project
+	define("PROJECT", getenv("boltProject"));
+	
 	// include our Bold file
 	require(FRAMEWORK . "Bolt.php");
 	
 	//figure out the project name passed from apache rewrite
-	$project = getenv("boltProject");
+	$project = PROJECT;
 		
 		// no project we show a 404
 		if ( $project === false ) {
 			exit( include(_404) );
 		}
 	
-	// we need their project config
-	Config::load(CONFIG . $project . ".ini");
-	
-		// add dao to autoload
-		if ( is_array(Config::get('autoload/file')) ) {
-			foreach ( Config::get('autoload/file') as $file ) {
-				$GLOBALS['_auto_loader'][] = $file;
-			}
-		}
-
 	// $class
 	$class = Config::get('site/base');
 

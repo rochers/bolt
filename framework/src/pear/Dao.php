@@ -185,96 +185,146 @@ abstract class Dao {
     	// what to return
     	switch($name) {
     	
-    		// short
-    		case 'short':
-    			
-    			// l
-    			$str = array();
-    			$l = 0;
-			    
-			    // no spaces
-			    if ( mb_strpos($this->{$args[0]},' ') === false ) {
-			    	return substr($this->{$args[0]},0,$args[1]-3).'...';
-			    }
+             // short
+                case 'short':
+                        
+                        // l
+                        $str = array();
+                        $l = 0;
+                            
+                            // no spaces
+                            if ( mb_strpos($this->{$args[0]},' ') === false ) {
+                                return substr($this->{$args[0]},0,$args[1]-3).'...';
+                            }
 
-    			// how many 
-    			foreach ( explode(" ",$this->{$args[0]}) as $w ) {	
-    				if ( $l+strlen($w) > $args[1] ) {
-    					return trim(implode(" ",$str)).'...';
-    				}
-    				$str[] = $w; $l += strlen($w);    				
-    			}
+                        // how many 
+                        foreach ( explode(" ",$this->{$args[0]}) as $w ) {      
+                                if ( $l+strlen($w) > $args[1] ) {
+                                        return trim(implode(" ",$str)).'...';
+                                }
+                                $str[] = $w; $l += strlen($w);                                  
+                        }
+                        
+                        // str
+                        $s = implode(" ",$str);
+                                
+                                // if total str is too big
+                                if ( strlen($s) > $args[1] ) {
+                                        $s = substr($s,0,$args[1]-3).'...';
+                                }
+                        
+                        return $s;
+        
+                // date
+                case 'date':
+                
+                        // give r
+                        $ts = $args[0];
+                        $frm = (isset($args[1])?$args[1]:'m/d/Y');
+                        
+                                // if not a ts
+                                if ( !$this->{$ts} ) {
+                                        return false;
+                                }
+                        
+                        // give it 
+                        return date($frm,$this->{$ts});
+                        
+                // decode
+                case 'decode':
+                                return html_entity_decode($this->{$args[0]},ENT_QUOTES,'utf-8');
+                                
+                // decode
+                case 'encode':
+                                return htmlentities($this->{$args[0]},ENT_QUOTES,'utf-8',false);
+        
+                // pop
+                case 'push':
+                        
+                        // get some stuff
+                        $ary = $this->{$args[0]};
+                        $val = $args[1];
+                                $key = (isset($args[2])?$args[2]:false);
+                        
+                        // if ary === false we assume it's just empty
+                        if ( $ary === false ) {
+                                $ary = array();
+                        }
+                        
+                        // is object
+                        if ( is_object($ary) AND method_exists($ary,'asArray') ) {
+                                $ary = $ary->asArray();
+                        }
+                        
+                                // need it to be an array
+                                if( !is_array($ary) ) {
+                                        return false;
+                                }
+                
+                        // add it
+                                if ( $key ) {
+                                        $ary[$key] = $val;
+                                }
+                                else {
+                                        $ary[] = $val;
+                                }
+                                
+                                // reset
+                                $this->{$args[0]} = $ary;
+                                
+                                // return array
+                                return $ary;
+                        
+                // keyed arary
+                case 'keyArray':
+                        
+                        // field
+                        $val = $args[0];
+                        $key = (isset($args[1])?$args[1]:'id');
+        
+                        // opts
+                        $array = array();
+                        
+                        // loop
+                        foreach ( $this->items as $itm ) {
+                                $k = $itm->$key;
+                                $v = $itm->$val;
+                                $array[$k] = $v;
+                        }
+                        
+                        return $array;  
+                        
+                // unset
+                case 'unset': 
+                        
+                        $ary = $this->{$args[0]};
+                        $key = (isset($args[1])?$args[1]:false);
+                        
+                        // is it an array
+                        if ( !is_array($ary) ) { return $ary; }
+                
+                        // unset it 
+                        if ( $key  ) {
+                                        unset($ary[$key]);
+                        }
+                        else {
+                                        $ary = false;
+                        }
+                
+                        // reset
+                        $this->{$args[0]} = $ary;
+                
+                        // return
+                        return $ary;
     			
-    			// str
-    			$s = implode(" ",$str);
+    			// possessive
+    			case 'possessive':
     				
-    				// if total str is too big
-    				if ( strlen($s) > $args[1] ) {
-    					$s = substr($s,0,$args[1]-3).'...';
-    				}
-    			
-    			return $s;
-    	
-    		// date
-    		case 'date':
-    		
-    			// give r
-    			$ts = $args[0];
-    			$frm = (isset($args[1])?$args[1]:'m/d/Y');
-    			
-    				// if not a ts
-    				if ( !$this->{$ts} ) {
-    					return false;
-    				}
-    			
-    			// give it 
-    			return date($frm,$this->{$ts});
-    			
-    		// decode
-    		case 'decode':
-				return html_entity_decode($this->{$args[0]},ENT_QUOTES,'utf-8');
-				
-    		// decode
-    		case 'encode':
-				return htmlentities($this->{$args[0]},ENT_QUOTES,'utf-8');
-    	
-    		// pop
-    		case 'push':
-    			
-    			// get some stuff
-    			$ary = $this->{$args[0]};
-    			$val = $args[1];
-				$key = (isset($args[2])?$args[2]:false);
-    			
-    			// if ary === false we assume it's just empty
-    			if ( $ary === false ) {
-    				$ary = array();
-    			}
-    			
-    			// is object
-    			if ( is_object($ary) AND method_exists($ary,'asArray') ) {
-    				$ary = $ary->asArray();
-    			}
-    			
-				// need it to be an array
-				if( !is_array($ary) ) {
-					return false;
-				}
-    		
-    			// add it
-				if ( $key ) {
-					$ary[$key] = $val;
-				}
-				else {
-					$ary[] = $val;
-				}
-				
-				// reset
-				$this->{$args[0]} = $ary;
-				
-				// return array
-				return $ary;
-    			
+    				// val
+    				$val = $this->{$args[0]};
+    				
+    				// return
+    				return $val . (substr($val,-1)=='s'?"'":"'s");
     	
     	};
     
@@ -526,7 +576,6 @@ abstract class Dao {
         if ( count($this->items) > 0 ) {
             foreach ( $this->items as $item ) {
                 $i = $item->asArray();
-                $i['_item'] = 'item';
                 $resp[] = $i;
             }
     	}
@@ -787,12 +836,21 @@ class DaoMock implements Iterator {
 
 	private $data = array();
 	
+	public function __construct($data=array()) {
+		$this->data = $data;
+	}
+	
 	public function __set($name,$val) {
 		$this->data[$name] = $val;
 	}
 	public function __get($name) {
 		if ( array_key_exists($name,$this->data) ) {
-			return $this->data[$name];
+			if ( is_array($this->data[$name])) {			
+				return $this->objectify($this->data[$name]);
+			}
+			else {		
+				return $this->data[$name];
+			}
 		}
 		return false;
 	}
@@ -812,6 +870,39 @@ class DaoMock implements Iterator {
 		}
 		return false;
 	}
+	
+	/////////////////////////////////////////////////
+	/// @brief turn an array into an object
+	///
+	/// @param array the array to turn into an object
+	/// @return stdclass object
+	/////////////////////////////////////////////////	
+	private function objectify($array) {
+	
+		if(!is_array($array) ) {
+			return $array;
+		}
+		
+		if ( is_array($array) AND is_numeric(key($array)) ) {
+			foreach ( $array as $i => $v ) {
+				$array[$i] = $this->objectify($v);
+			}
+			return $array;
+		}
+	
+		$object = new DaoMock();
+		if (is_array($array) && count($array) > 0) {
+		  foreach ($array as $name => $value) {
+		        $object->$name = $this->objectify($value);
+		  }
+	      return $object; 
+		}
+	    else {
+	      return false;
+	    }
+
+
+	}		
 	
 	/////////////////////////////////////////////////
 	/// @brief get item value at given index

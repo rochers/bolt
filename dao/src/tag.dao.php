@@ -6,13 +6,12 @@ namespace dao;
 /// @brief tag dao
 /// @extebds DaoDb
 /////////////////////////////////////////////////
-class tag extends \DaoDb {
+class tag extends Db {
 
     // list of special tags that 
     // should be checked against in the 
     // database
     private $special = array( 
-        'filters' => array( 'object' => 'filters', 'value' => 'title' ) 
     );
 
 	/////////////////////////////////////////////////
@@ -24,6 +23,11 @@ class tag extends \DaoDb {
 	/// @return void
 	/////////////////////////////////////////////////
 	public function set($parts) {
+	
+		// string
+		if ( is_string($parts) )  {
+			$parts = self::parse($parts);
+		}
 	   
         // get parts of the tag
         if ( count($parts) == 3 ) {
@@ -32,7 +36,6 @@ class tag extends \DaoDb {
         else {
 	        list($ns,$pred) = $parts;        
         }
-
 		
         // raw
         $raw = "{$ns}:{$pred}";
@@ -62,7 +65,7 @@ class tag extends \DaoDb {
                 $val = $pred;
             }
             
-        }
+        }    
         
         // raw
         $this->data['raw'] = $raw;
