@@ -1,6 +1,8 @@
 <?php
 
-require(FRAMEWORK . "Fb/facebook.php");
+namespace Ext;
+
+require(FRAMEWORK . "Ext/Fb/facebook.php");
 
 ////////////////////////////////
 /// @breif facebook integration
@@ -35,10 +37,10 @@ class Fb {
 	private function __construct() {
 
 		// fb 
-		$this->fb = new Facebook(array('appId'=>Config::get('site/fb-key'),'secret'=>Config::get('site/fb-secret'),'cookie'=>true));		
+		$this->fb = new \Facebook(array('appId'=>\Config::get('site/fb-key'),'secret'=>\Config::get('site/fb-secret'),'cookie'=>true));		
 
 		// user
-		$this->user = Config::get('user');
+		$this->user = \Config::get('user');
 
 			// loged
 			if ( $this->user !== false ) {
@@ -48,7 +50,7 @@ class Fb {
 		$this->fbSession = $this->fb->getSession();
 
 		// attach some events
-		$events = Events::singleton();
+		$events = \Events::singleton();
 
 		// what we want to listen for
 		$e = array('form-enter');

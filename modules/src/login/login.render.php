@@ -68,13 +68,13 @@ class login extends \FrontEnd {
 
 			
 			// check with facebook to see if they're loged in	
-			$fbuser = \Fb::singleton()->getUser();
+			$fbuser = \Ext\Fb::singleton()->getUser();
 		
 			// facebook user
 			if ( $fbuser ) { 
 			
 				// name
-				$u = \Fb::singleton()->api('/me');			
+				$u = \Ext\Fb::singleton()->api('/me');			
 			
 				// try to get a user to see 
 				// if they've already created an account
