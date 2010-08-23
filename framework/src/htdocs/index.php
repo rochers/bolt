@@ -19,7 +19,13 @@
 		
 		// no project we show a 404
 		if ( $project === false ) {
+			
+			// error
+			error_log("No project defined");
+			
+			// exit
 			exit( include(_404) );
+			
 		}
 	
 	// $class
@@ -27,7 +33,13 @@
 
 		// no claas
 		if ( $class === false OR !class_exists($class, true) ) {
+		
+			// erro
+			error_log("Unable to find project class");
+		
+			// class
 			exit( include(_404) );
+			
 		}	
 
 	//kick off the project and get back page params

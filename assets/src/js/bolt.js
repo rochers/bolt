@@ -88,7 +88,7 @@ var f = function(Y) {
 			var self = this;
 			
 			// generl panel
-			this.panel = new BLT.Class.Panel({});			
+		//	this.panel = new BLT.Class.Panel({});			
 			
 			// events
 			this.publish('blt-base:docclick');			
@@ -117,98 +117,15 @@ var f = function(Y) {
 					// self
 					var self = this;
 					
+					// init
 					FB.init({appId: BLT.Env.fbApiKey, status: false, cookie: true, xfbml: true});
-					FB.getLoginStatus(function(response) { 
-					
-					    if (response.session) {
-					      // A user has logged in, and a new cookie has been saved
-					      BLT.Obj.fire("blt-base:fb-con");
-						  BLT.Obj.fire("blt-base:fb-init");	
-						  
-					    } else {
-					      // The user has logged out, and the cookie has been cleared
-					      BLT.Obj.fire("blt-base:fb-not-con");							
-						  BLT.Obj.fire("blt-base:fb-init");	
-					    
-					    }
-					  });
-					
-			
+													
 				}
 				
 			});	
 		
 		
-		},
-		
-		handleFbLogin : function(response) { 
-			
-			  if (response.session) {
-			    // user successfully logged in
-			    
-		    	BLT.Env.fb = true;			
-				
-				// self
-				var self = this; 
-				
-				BLT.Obj.fire("blt-base:fbconnected");
-			    
-			  } else {
-			    // user cancelled login
-			    
-			    alert("You must provide us your Email Address in order to login to DailyD.");
-			     
-			  }		
-						
-			
-			/* load facebook
-			Y.Get.script('http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php/en_US',{
-				'insertBefore': 'ft',
-				'scope': BLT.Obj,
-				'onSuccess': function(){
-	
-					// yes to the fb
-					BLT.Env.fb = true;			
-					
-					// self
-					var self = this;
-				
-					// init 
-					FB.init(BLT.Env.fbApiKey, BLT.Env.Urls.base + "xd_receiver.htm",{
-						'ifUserConnected': function() {
-
-							FB.Connect.get_status().waitUntilReady(function(status) {
-								if ( status == FB.ConnectState.connected ) {
-							
-									// ask them again
-									FB.Facebook.apiClient.users_hasAppPermission('email',function(r){
-										if ( r != 1 ) {
-											FB.Connect.showPermissionDialog("email,publish_stream",function(perms){
-												if ( perms.indexOf('email') == -1 ) {
-													alert("You must provide us your Email Address in order to recieve deals.");
-												}
-												else {
-													BLT.Obj.fire("blt-base:fbconnected");
-												}
-											});	
-										}
-										else {
-											BLT.Obj.fire("blt-base:fbconnected");
-										}												
-									});
-
-								}
-							});
-						
-						}
-					
-					});
-			
-				}
-				
-			});*/	
-
-		},
+		},		
 		
 		// load css
 		loadCss : function(url) {
@@ -236,6 +153,26 @@ var f = function(Y) {
 				// open it in a panel
 				this.panel.load( tar.get('href') ,{'openAfter':true});
 			
+			}
+			else if (  tar.hasClass('fb-login') ) {
+
+				// stop
+				e.halt();
+				
+				// login	
+				FB.login(function(response) {
+				  if (response.session) {
+				    if (response.perms) {
+						window.location.href = tar.get('href');
+				    } 
+				    else {
+						alert("You must grant proper permissions")
+				    }
+				  } else {
+				    alert("Error with facebook login");
+				  }
+				}, {perms:'read_stream,publish_stream,offline_access,user_about_me,email,user_location,friends_location,user_events,friends_events'});				
+
 			}
 		
 			

@@ -118,7 +118,7 @@ abstract class FrontEnd {
 		$tok = $this->randomString(10).base64_encode( $this->md5( time() ) .  rand(1,999) );
 	
 		// set it 
-		$tokens = array( 'token' => $tok, 'expires' => utctime()+(60*60), 'ip' => IP );
+		$tokens = array( 'token' => $tok, 'expires' => b::utctime()+(60*60), 'ip' => IP );
 	
 		// delete old token
 		$this->cache->delete("{$this->tokens}:{$name}",'tokens');
@@ -143,7 +143,7 @@ abstract class FrontEnd {
 		$this->cache->delete("{$this->tokens}:{$name}",'tokens');	
 	
 		// valid
-		if ( $tok['token'] == $given AND utctime() < $tok['expires'] AND $tok['ip'] == IP ) {					
+		if ( $tok['token'] == $given AND b::utctime() < $tok['expires'] AND $tok['ip'] == IP ) {					
 			
 			// yes
 			return true;

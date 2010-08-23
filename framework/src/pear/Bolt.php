@@ -1,7 +1,4 @@
 <?php // (c) 2010 - bolthq
-	
-	// our stuff
-	define("CONFIG",	"/home/bolt/config/");
 
 	// auto load
     // tell the autoloader where the locations to look
@@ -37,7 +34,7 @@
 			}
 		
 			// file name
-			$file = formatDirName($path[1]).$class.$path[0];		
+			$file = b::formatDirName($path[1]).$class.$path[0];		
 			
 //			var_dump($file, $class);
 		
@@ -94,6 +91,10 @@
 	define("DATE_ONLY", "l, F jS, Y");	
 	define("TIME_FRM", "h:i:s A");	
 	
+	
+	// bolt modules
+	define("BOLT_MODULES", "/home/bolt/share/pear/bolt/modules");
+	
 	// date
 	date_default_timezone_set("UTC");
 		
@@ -115,6 +116,9 @@
 	///  @breif config
 	////////////////////////////////
 	abstract class Bolt {
+	
+		// project
+		public static $project = PROJECT;
 	
 		////////////////////////////////
 		///  @breif start
@@ -231,9 +235,10 @@
 				
 				// matched
 				$match = array();
+				$i = 0;
 				
 				// check for any %
-				if ( preg_match_all("/\%([a-zA-Z0-9\.]+)\%/", $v, $match, PREG_SET_ORDER) ) {
+				while ( preg_match_all("/\%([a-zA-Z0-9\.\_]+)\%/", $v, $match, PREG_SET_ORDER) AND $i++ < 5 ) {
 					
 					// loop through the matches and try to 
 					// replace them
@@ -448,6 +453,148 @@
 	}
 
 
+	// bolt
+	class b {
+	
+		public static function utctime() {
+		
+			// datetime
+			$dt = new DateTime('now',new DateTimeZone('UTC'));		
+			
+			// return utctime
+			return $dt->getTimestamp();
+		
+		}
+		
+		public static function plural($str,$count) {
+			if ( is_array($count) ) { $count = count($count); }
+			
+			if ( substr($str,-1) == 'y' AND $count > 1 ) {
+				return substr($str,0,-1)."ies";
+			}
+			return $str . ($count!=1?'s':'');
+		}
+		
+		public static function ago($tm,$rcs = 0) {
+		
+		    $cur_tm = utctime(); $dif = $cur_tm-$tm;	
+		
+	    	// check user for a tzoffset
+	        $u = Session::getUser();
+	        
+	        // offset
+	        if ( $u AND $u->profile_tzoffset ) {
+	        	$tm += $u->profile_tzoffset;
+	        	$cur_tm += $u->profile_tzoffset;
+	        }		
+		
+		    $pds = array('second','minute','hour','day','week','month','year','decade');
+		    $lngh = array(1,60,3600,86400,604800,2630880,31570560,315705600);
+		    for($v = sizeof($lngh)-1; ($v >= 0)&&(($no = $dif/$lngh[$v])<=1); $v--); if($v < 0) $v = 0; $_tm = $cur_tm-($dif%$lngh[$v]);
+		   
+		    $no = floor($no); if($no <> 1) $pds[$v] .='s'; $x=sprintf("%d %s ",$no,$pds[$v]);
+		    return $x . ' ago';
+		}
+		
+		public static function left($theTime)
+			{
+				$now = strtotime("now");
+				$timeLeft = $theTime - $now;
+				$theText = '';			
+				 
+				if($timeLeft > 0)
+				{
+				$days = floor($timeLeft/60/60/24);
+				$hours = $timeLeft/60/60%24;
+				$mins = $timeLeft/60%60;
+				$secs = $timeLeft%60;
+				
+				// check for days
+				if($days) {
+						$theText .= $days . " day";
+						
+						if ($days > 1) { $theText .= 's'; }
+							
+				} 
+				
+				if ( $hours > 0 ) {
+				
+						$theText .= ' '.$hours . " hour";
+					
+						if ($hours > 1) { $theText .= 's'; }
+				
+				}
+						
+						
+						$theText .= ' '.$mins . " min";
+						
+						if ($mins > 1) { $theText .= 's'; }		
+	
+				
+						$theText .= ' '.$secs . " sec";
+						
+						if ($secs > 1) { $theText .= 's'; }
+	
+						
+			}
+			
+			return $theText;
+			
+		}
+		
+		public static function short($str,$len=200,$onwords=true) {
+			if ( mb_strlen($str) < $len ) { return $str; }
+			if ( !$onwords ) {
+				if ( mb_strlen($str) > $len ) {
+					return substr($str,0,$len)."...";
+				}
+			}
+			else {
+				$words = explode(' ',$str); 
+				$final = array();
+				$c = 0;
+				foreach ( $words as $word ) {
+					if ( $c+mb_strlen($word) > $len ) {
+						return implode(' ',$final). '...';
+					}
+					$c += mb_strlen($word);
+					$final[] = $word;
+				}
+			}
+		
+			return $str;
+			
+		}
+		
+		public static function br2nl($string){
+			$return=eregi_replace('<br[[:space:]]*/?'.
+			'[[:space:]]*>',chr(13).chr(10),$string);
+			return $return;
+		} 	
+		
+		public static function show_404($page=_404) {
+			ob_clean();
+			header("HTTP/1.1 404 Not Found",TRUE,404); 
+		
+			if (!file_exists(_404)) {
+				$page = _404;
+			} 
+		
+			
+			exit(include($page));
+		}
+	
+		public static function factory($n,$ns='dao') {
+			$class = '\\'.$ns.'\\'.$n;
+			return new $class;
+		}
+		
+		public static function formatDirName($dir) {
+			return rtrim($dir,'/')."/";
+		}
+		
+	}
+	
 	/**
 	 * global paramater function
 	 * @method	p
@@ -456,7 +603,7 @@
 	 * @param	{array}		array to look in [Default: $_REQUEST]
 	 * @param   {string}    string to filter on the return
 	 */
-	function p($key,$default=false,$array=false,$filter=FILTER_SANITIZE_STRING) {
+	function  p($key,$default=false,$array=false,$filter=FILTER_SANITIZE_STRING) {
 	
 		// check if key is an array
 		if ( is_array($key) ) {
@@ -534,143 +681,6 @@
 		// give back
 		return $path[$pos];
 	
-	}	
-
-	function utctime() {
-	
-		// datetime
-		$dt = new DateTime('now',new DateTimeZone('UTC'));		
-		
-		// return utctime
-		return $dt->getTimestamp();
-	
-	}
-	
-	function plural($str,$count) {
-		if ( is_array($count) ) { $count = count($count); }
-		
-		if ( substr($str,-1) == 'y' AND $count > 1 ) {
-			return substr($str,0,-1)."ies";
-		}
-		return $str . ($count!=1?'s':'');
-	}
-	
-	function ago($tm,$rcs = 0) {
-	
-	    $cur_tm = utctime(); $dif = $cur_tm-$tm;	
-	
-    	// check user for a tzoffset
-        $u = Session::getUser();
-        
-        // offset
-        if ( $u AND $u->profile_tzoffset ) {
-        	$tm += $u->profile_tzoffset;
-        	$cur_tm += $u->profile_tzoffset;
-        }		
-	
-	    $pds = array('second','minute','hour','day','week','month','year','decade');
-	    $lngh = array(1,60,3600,86400,604800,2630880,31570560,315705600);
-	    for($v = sizeof($lngh)-1; ($v >= 0)&&(($no = $dif/$lngh[$v])<=1); $v--); if($v < 0) $v = 0; $_tm = $cur_tm-($dif%$lngh[$v]);
-	   
-	    $no = floor($no); if($no <> 1) $pds[$v] .='s'; $x=sprintf("%d %s ",$no,$pds[$v]);
-	    return $x . ' ago';
-	}
-	
-	function left($theTime)
-		{
-			$now = strtotime("now");
-			$timeLeft = $theTime - $now;
-			$theText = '';			
-			 
-			if($timeLeft > 0)
-			{
-			$days = floor($timeLeft/60/60/24);
-			$hours = $timeLeft/60/60%24;
-			$mins = $timeLeft/60%60;
-			$secs = $timeLeft%60;
-			
-			// check for days
-			if($days) {
-					$theText .= $days . " day";
-					
-					if ($days > 1) { $theText .= 's'; }
-						
-			} 
-			
-			if ( $hours > 0 ) {
-			
-					$theText .= ' '.$hours . " hour";
-				
-					if ($hours > 1) { $theText .= 's'; }
-			
-			}
-					
-					
-					$theText .= ' '.$mins . " min";
-					
-					if ($mins > 1) { $theText .= 's'; }		
-
-			
-					$theText .= ' '.$secs . " sec";
-					
-					if ($secs > 1) { $theText .= 's'; }
-
-					
-		}
-		
-		return $theText;
-		
-	}
-	
-	function short($str,$len=200,$onwords=true) {
-		if ( mb_strlen($str) < $len ) { return $str; }
-		if ( !$onwords ) {
-			if ( mb_strlen($str) > $len ) {
-				return substr($str,0,$len)."...";
-			}
-		}
-		else {
-			$words = explode(' ',$str); 
-			$final = array();
-			$c = 0;
-			foreach ( $words as $word ) {
-				if ( $c+mb_strlen($word) > $len ) {
-					return implode(' ',$final). '...';
-				}
-				$c += mb_strlen($word);
-				$final[] = $word;
-			}
-		}
-	
-		return $str;
-		
-	}
-	
-	function br2nl($string){
-	$return=eregi_replace('<br[[:space:]]*/?'.
-	'[[:space:]]*>',chr(13).chr(10),$string);
-	return $return;
-	} 	
-	
-	function show_404($page=_404) {
-		ob_clean();
-		header("HTTP/1.1 404 Not Found",TRUE,404); 
-	
-		if (!file_exists(_404)) {
-			$page = _404;
-		} 
-	
-		
-		exit(include($page));
-	}
-
-	function factory($n,$ns='dao') {
-		$class = '\\'.$ns.'\\'.$n;
-		return new $class;
-	}
-	
-	function formatDirName($dir) {
-		return rtrim($dir,'/')."/";
-	}
+	}		
 	
 ?>
