@@ -175,7 +175,7 @@ class Controller {
 
 		// now make sure the page exists
 		if ( !$pg ) {
-			show_404();
+			b::show_404();
 		}
 
 		// render
